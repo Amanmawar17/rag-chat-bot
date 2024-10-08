@@ -1,6 +1,4 @@
-import Image from 'next/image'
-import home from '@/public/home.svg'
-import Navbar from './components/NavBar'
+import Navbar from '@/app/components/Navbar'
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 
