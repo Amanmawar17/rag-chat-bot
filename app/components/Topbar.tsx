@@ -8,9 +8,9 @@ import {
     AvatarImage,
 } from "@/components/ui/avatar"
 import { Separator } from '@/components/ui/separator'
-import { FaGithub } from "react-icons/fa";
-import { FaPlus } from "react-icons/fa6";
-import { LuMenu } from "react-icons/lu";
+import Github from "@/public/icons/github.svg"
+import { Plus } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import History from './History'
 import LogoutButton from './auth/LogoutButton'
 
@@ -23,10 +23,10 @@ export default function Topbar() {
     return (
         <div className='p-2 '>
             <div className='flex justify-between items-center shadow-md'>
-                <Button className='p-2 w-20 cursor-pointer transition' onClick={toggleSidebar}>{isOpen ? <FaPlus className='w-8 h-8 rotate-45' /> : <LuMenu className='w-8 h-8' />}</Button>
+                <Button className='p-2 w-20 cursor-pointer transition' onClick={toggleSidebar}>{isOpen ? <Plus className='w-8 h-8 rotate-45' /> : <Menu className='w-8 h-8' />}</Button>
                 <h1 className='col-span-3 place-self-center text-4xl font-semibold'>RAG <span className='text-primary'> Chat </span>Bot</h1>
                 <div className='py-5 flex justify-center items-center gap-5'>
-                <Button className='place-self-end p-2 bg-background text-primary border-2 border-primary hover:bg-primary hover:text-background'><FaGithub className="w-5 h-5 mr-2" />Github</Button>
+                <Button className='place-self-end p-2 bg-background text-primary border-2 border-primary hover:bg-primary hover:text-background'><Github className="w-5 h-5 mr-2" />Github</Button>
                     <Avatar className=''>
                         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
                         <AvatarFallback>CN</AvatarFallback>

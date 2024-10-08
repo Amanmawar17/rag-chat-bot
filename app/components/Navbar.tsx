@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { HiOutlineMenuAlt1 } from "react-icons/hi";
-import { RxCross2 } from "react-icons/rx";
+import { Menu } from 'lucide-react'
+import { X } from "lucide-react";
 
 const navdata = [
     {
@@ -41,12 +41,12 @@ function Navbar() {
 
                         <div className="block lg:hidden">
                             {isOpen ? (
-                                <RxCross2
+                                <X
                                     className="h-6 w-6"
                                     onClick={() => setIsOpen(!isOpen)}
                                 />
                             ) : (
-                                <HiOutlineMenuAlt1
+                                <Menu
                                     className="h-6 w-6"
                                     onClick={() => setIsOpen(!isOpen)}
                                 />
