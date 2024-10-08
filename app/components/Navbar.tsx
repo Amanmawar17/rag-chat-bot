@@ -23,9 +23,6 @@ const navdata = [
 
 function Navbar() {
     const path = usePathname();
-    const param = useSearchParams();
-    const url = `${path}${param}`;
-    const isActive = (pathname: string) => pathname === url;
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -59,20 +56,22 @@ function Navbar() {
                             : "hidden lg:flex"
                             }`}
                     >
-                        {navdata.map((item, index) => (
-                            <Link
-                                key={index}
-                                href={`/${item.pathname}`}
-                                onClick={() => setIsOpen(isOpen)}
-                                className={`p-4 max-lg:text-3xl max-lg:font-medium hover:text-primary hover:border-b-primary hover:border-b-2 
-                  ${isActive(`/${item.pathname}`)
-                                        ? "text-primary border-b-2 border-b-primary"
-                                        : ""
-                                    }`}
-                            >
-                                {item.links}
-                            </Link>
-                        ))}
+
+                        <Link href='chat' className={`p-4 max-lg:text-3xl max-lg:font-medium hover:text-primary hover:border-b-primary hover:border-b-2 
+                    ${path == 'chat'
+                                ? "text-primary border-b-2 border-b-primary"
+                                : ""
+                            }`} >Chat</Link>
+                        <Link href='about' className={`p-4 max-lg:text-3xl max-lg:font-medium hover:text-primary hover:border-b-primary hover:border-b-2 
+                    ${path == 'about'
+                                ? "text-primary border-b-2 border-b-primary"
+                                : ""
+                            }`} >About</Link>
+                        <Link href='login' className={`p-4 max-lg:text-3xl max-lg:font-medium hover:text-primary hover:border-b-primary hover:border-b-2 
+                    ${path == 'login'
+                                ? "text-primary border-b-2 border-b-primary"
+                                : ""
+                            }`} >Login</Link>
                         <Link href='https://github.com/Amanmawar17/rag-chat-bot' className="p-4 max-lg:text-3xl max-lg:font-medium hover:text-primary hover:border-b-primary hover:border-b-2" >Github</Link>
                     </div>
                 </div>
