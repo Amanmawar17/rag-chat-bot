@@ -1,54 +1,78 @@
-// pages/api/chats/index.ts
-import { getSession } from 'next-auth/react';
+
+import { getServerSession } from 'next-auth/next';
 import { PrismaClient } from '@prisma/client';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req });
+export async function POST(req: Request) {
+  const session = await getServerSession();
 
-  switch (req.method) {
-    case 'POST':
-      // Create a new chat
-      if (!session) {
-        return res.status(401).json({ error: 'Unauthorized' });
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { message, chatId, title } = await req.json(); // Extract message, chatId, and title from request body
+
+  try {
+    let chat;
+
+    // Check if chatId is provided and chat exists
+    if (chatId) {
+      chat = await prisma.chat.findUnique({
+        where: { id: Number(chatId) },
+      });
+
+      if (!chat) {
+        return NextResponse.json({ error: 'Chat not found' }, { status: 404 });
       }
+    } else {
+      // Create a new chat if chatId is not provided
+      chat = await prisma.chat.create({
+        data: {
+          userId: Number(session.user.id), // Use the authenticated user's ID
+          title: title || 'New Chat', // Use provided title or default to 'New Chat'
+        },
+      });
+    }
 
-      try {
-        const chat = await prisma.chat.create({
-          data: {
-            userId: Number(session.user.id), // Use the authenticated user's ID
-            message: req.body.message, // Assuming you want to send a message with the chat
-            senderType: 'USER', // Assuming the sender is the user
-          },
-        });
-        res.status(201).json(chat);
-      } catch (error) {
-        console.error('Failed to create chat:', error);
-        res.status(500).json({ error: 'Failed to create chat' });
-      }
-      break;
+    // Create a response with the user's message
+    await prisma.response.create({
+      data: {
+        chatId: chat.id, // Link the response to the existing or newly created chat
+        message, // Use the message received from the body
+        senderType: 'USER', // Assuming the sender is the user
+      },
+    });
 
-    case 'GET':
-      // Fetch all chats for the authenticated user
-      if (!session) {
-        return res.status(401).json({ error: 'Unauthorized' });
-      }
+    // Return the updated chat with responses
+    const updatedChat = await prisma.chat.findUnique({
+      where: { id: chat.id },
+      include: { responses: true }, // Include the responses in the result
+    });
 
-      try {
-        const chats = await prisma.chat.findMany({
-          where: { userId: Number(session.user.id) }, // Fetch chats for the authenticated user
-        });
-        res.status(200).json(chats);
-      } catch (error) {
-        console.error('Failed to fetch chats:', error);
-        res.status(500).json({ error: 'Failed to fetch chats' });
-      }
-      break;
+    return NextResponse.json(updatedChat, { status: 201 });
+  } catch (error) {
+    console.error('Failed to create chat or response:', error);
+    return NextResponse.json({ error: 'Failed to create chat or response' }, { status: 500 });
+  }
+}
 
-    default:
-      res.setHeader('Allow', ['POST', 'GET']);
-      res.status(405).end(`Method ${req.method} Not Allowed`);
+export async function GET(req: Request) {
+  const session = await getServerSession();
+
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const chats = await prisma.chat.findMany({
+      where: { userId: Number(session.user.id) }, // Fetch chats for the authenticated user
+      include: { responses: true }, // Include the responses in the result
+    });
+    return NextResponse.json(chats, { status: 200 });
+  } catch (error) {
+    console.error('Failed to fetch chats:', error);
+    return NextResponse.json({ error: 'Failed to fetch chats' }, { status: 500 });
   }
 }

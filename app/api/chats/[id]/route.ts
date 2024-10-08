@@ -1,51 +1,50 @@
-import { getSession } from 'next-auth/react';
+
+import { getServerSession } from 'next-auth/next';
 import { PrismaClient } from '@prisma/client';
-import type { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getSession({ req });
-  const { id } = req.query; // Get the chat ID from the request query
+export async function PUT(req: Request, { params }: { params: { id: string } }) {
+  const session = await getServerSession();
 
-  switch (req.method) {
-    case 'PUT':
-      // Update a chat
-      if (!session) return res.status(401).json({ error: 'Unauthorized' });
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-      const { userId } = req.body; // Assuming userId and other fields are passed in the body
+  const { id } = params;
+  const { userId } = await req.json(); // Assuming userId and other fields are passed in the body
 
-      try {
-        const updatedChat = await prisma.chat.update({
-          where: { id: Number(id) },
-          data: {
-            userId: userId || session.user.id,
-          },
-        });
-        res.status(200).json(updatedChat);
-      } catch (error) {
-        console.error(error); // Log the error for debugging
-        res.status(500).json({ error: 'Failed to update chat' });
-      }
-      break;
+  try {
+    const updatedChat = await prisma.chat.update({
+      where: { id: Number(id) },
+      data: {
+        userId: userId || session.user.id, // Convert string to number if needed
+      },
+    });
+    return NextResponse.json(updatedChat);
+  } catch (error) {
+    console.error('Failed to update chat:', error);
+    return NextResponse.json({ error: 'Failed to update chat' }, { status: 500 });
+  }
+}
 
-    case 'DELETE':
-      // Delete a chat
-      if (!session) return res.status(401).json({ error: 'Unauthorized' });
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+  const session = await getServerSession();
 
-      try {
-        await prisma.chat.delete({
-          where: { id: Number(id) },
-        });
-        res.status(204).end(); // No content
-      } catch (error) {
-        console.error(error); // Log the error for debugging
-        res.status(500).json({ error: 'Failed to delete chat' });
-      }
-      break;
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
-    default:
-      res.setHeader('Allow', ['PUT', 'DELETE']);
-      res.status(405).end(`Method ${req.method} Not Allowed`);
+  const { id } = params;
+
+  try {
+    await prisma.chat.delete({
+      where: { id: Number(id) },
+    });
+    return NextResponse.json({}, { status: 204 }); // No content
+  } catch (error) {
+    console.error('Failed to delete chat:', error);
+    return NextResponse.json({ error: 'Failed to delete chat' }, { status: 500 });
   }
 }

@@ -4,7 +4,6 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,24 +13,25 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-        
+
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
   username  String   @unique
   password  String   // Store the hashed password
-  chats     Chat[]   // Relation to the Chat model (a user can have many chats)
+  chats     Chat[]   // A user can have many chats
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Chat {
   id          Int        @id @default(autoincrement())
-  userId      Int?      // Optional because bots don't have a userId
-  user        User?     @relation(fields: [userId], references: [id])
-  title       String
-  responses   Response[] // Relation to the Response model (one chat can have many responses)
-  createdAt   DateTime  @default(now())
+  userId      Int       // Required foreign key to User, as every chat should belong to a user
+  user        User      @relation(fields: [userId], references: [id])
+  title       String     // Title or topic of the chat
+  responses   Response[] // A chat can have many responses
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt // Add updatedAt to track changes
 }
 
 model Response {
@@ -43,6 +43,7 @@ model Response {
   createdAt DateTime   @default(now())
 }
 
+// Enum for sender type
 enum SenderType {
   USER
   BOT
