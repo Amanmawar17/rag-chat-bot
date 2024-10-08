@@ -1,11 +1,10 @@
 'use client'
-import { Loader2, Plus, Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import React, {
   ChangeEvent,
   FormEvent,
   useState,
 } from "react";
-import SelectedImages from "./SelectedImages";
 import { ChatRequestOptions } from "ai";
 
 type Props = {
@@ -76,13 +75,6 @@ const InputForm = ({
       }}
       className="w-full flex flex-row max-w-4xl m-auto gap-2 items-center h-full mt-5"
     >
-      <div className="border flex flex-row relative">
-        <Plus
-          onClick={() => document.getElementById("fileInput")?.click()} // Click event handler
-          className="cursor-pointer p-3 h-10 w-10 stroke-stone-500"
-        />
-        <SelectedImages images={images} setImages={setImages} />
-      </div>
       <input
         className="hidden"
         id="fileInput"
@@ -93,11 +85,11 @@ const InputForm = ({
       />
       <input
         type="text"
-        placeholder={isLoading ? "Generating . . ." : "ask something . . . "}
+        placeholder={isLoading ? "let me think...." : "Do you having anything in mind."}
         value={input}
         disabled={isLoading}
         onChange={handleInputChange}
-        className="border-b border-dashed outline-none w-full py-2 text-[#0842A0] placeholder:text-[#0842A099] text-right focus:placeholder-transparent disabled:bg-transparent"
+        className="border-b border-dashed outline-none w-full py-2 text-primary placeholder:text-primary/80 text-right focus:placeholder-transparent disabled:bg-transparent shadow-xl"
       />
       <button
         type="submit"
