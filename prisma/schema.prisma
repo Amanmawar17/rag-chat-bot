@@ -26,12 +26,21 @@ model User {
 }
 
 model Chat {
-  id          Int      @id @default(autoincrement())
-  message     String
-  senderType  SenderType  // Can be 'USER' or 'BOT'
+  id          Int        @id @default(autoincrement())
   userId      Int?      // Optional because bots don't have a userId
   user        User?     @relation(fields: [userId], references: [id])
+  title       String
+  responses   Response[] // Relation to the Response model (one chat can have many responses)
   createdAt   DateTime  @default(now())
+}
+
+model Response {
+  id        Int        @id @default(autoincrement())
+  chatId    Int       // Foreign key to the Chat model
+  chat      Chat      @relation(fields: [chatId], references: [id])
+  message   String     // The message content
+  senderType SenderType // Can be 'USER' or 'BOT'
+  createdAt DateTime   @default(now())
 }
 
 enum SenderType {
